@@ -1,5 +1,4 @@
-const itemModel = require("../models/Item");
-
+const Item = require('../models/Item');
 
 exports.createItem = async (req, res) => {
     try {
@@ -7,7 +6,7 @@ exports.createItem = async (req, res) => {
         if (!title || !description || !price || !category) {
             return res.status(400).json({ error: 'All fields (title, description, price, category) are required' });
         }
-        const item = new itemModel({
+        const item = new Item({
             title,
             description,
             price: parseFloat(price),
@@ -23,7 +22,7 @@ exports.createItem = async (req, res) => {
 
 exports.getAllItems = async (req, res) => {
     try {
-        const items = await itemModel.find()
+        const items = await Item.find().limit(10).setOptions({ maxTimeMS: 5000 }); // 5-second query timeout
         res.json(items);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -32,7 +31,7 @@ exports.getAllItems = async (req, res) => {
 
 exports.getItem = async (req, res) => {
     try {
-        const item = await itemModel.findById(req.params.id);
+        const item = await Item.findById(req.params.id).setOptions({ maxTimeMS: 5000 });
         if (!item) {
             return res.status(404).json({ error: 'Item not found' });
         }
@@ -51,11 +50,11 @@ exports.updateItem = async (req, res) => {
             updateData.image = `/uploads/${req.file.filename}`;
         }
         
-        const item = await itemModel.findByIdAndUpdate(
+        const item = await Item.findByIdAndUpdate(
             req.params.id,
             updateData,
             { new: true }
-        );
+        ).setOptions({ maxTimeMS: 5000 });
         
         if (!item) {
             return res.status(404).json({ error: 'Item not found' });
@@ -68,7 +67,7 @@ exports.updateItem = async (req, res) => {
 
 exports.deleteItem = async (req, res) => {
     try {
-        const item = await itemModel.findByIdAndDelete(req.params.id);
+        const item = await Item.findByIdAndDelete(req.params.id).setOptions({ maxTimeMS: 5000 });
         if (!item) {
             return res.status(404).json({ error: 'Item not found' });
         }
