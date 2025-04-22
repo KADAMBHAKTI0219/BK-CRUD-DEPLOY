@@ -22,7 +22,7 @@ exports.createItem = async (req, res) => {
 
 exports.getAllItems = async (req, res) => {
     try {
-        const items = await Item.find();
+        const items = await Item.find().limit(10); // Limit to 10 items for now
         res.json(items);
     } catch (error) {
         res.status(500).json({ error: error.message });
