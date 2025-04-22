@@ -1,4 +1,5 @@
-const Item = require('../models/Item');
+const itemModel = require("../models/Item");
+
 
 exports.createItem = async (req, res) => {
     try {
@@ -6,7 +7,7 @@ exports.createItem = async (req, res) => {
         if (!title || !description || !price || !category) {
             return res.status(400).json({ error: 'All fields (title, description, price, category) are required' });
         }
-        const item = new Item({
+        const item = new itemModel({
             title,
             description,
             price: parseFloat(price),
@@ -22,7 +23,7 @@ exports.createItem = async (req, res) => {
 
 exports.getAllItems = async (req, res) => {
     try {
-        const items = await Item.find().limit(10); // Limit to 10 items for now
+        const items = await itemModel.find()
         res.json(items);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -31,7 +32,7 @@ exports.getAllItems = async (req, res) => {
 
 exports.getItem = async (req, res) => {
     try {
-        const item = await Item.findById(req.params.id);
+        const item = await itemModel.findById(req.params.id);
         if (!item) {
             return res.status(404).json({ error: 'Item not found' });
         }
@@ -50,7 +51,7 @@ exports.updateItem = async (req, res) => {
             updateData.image = `/uploads/${req.file.filename}`;
         }
         
-        const item = await Item.findByIdAndUpdate(
+        const item = await itemModel.findByIdAndUpdate(
             req.params.id,
             updateData,
             { new: true }
@@ -67,7 +68,7 @@ exports.updateItem = async (req, res) => {
 
 exports.deleteItem = async (req, res) => {
     try {
-        const item = await Item.findByIdAndDelete(req.params.id);
+        const item = await itemModel.findByIdAndDelete(req.params.id);
         if (!item) {
             return res.status(404).json({ error: 'Item not found' });
         }
