@@ -14,18 +14,10 @@ app.use('/uploads', express.static('uploads'));
 
 // MongoDB connection with explicit options and error handling
 const connectWithRetry = () => {
-    mongoose.connect(process.env.MONGO_DB_URI, {
-        serverSelectionTimeoutMS: 60000, // 60 seconds
-        socketTimeoutMS: 90000, // 90 seconds
-        maxPoolSize: 10,
-        autoIndex: false,
-        retryWrites: true,
-        retryReads: true
-    }).then(() => {
+    mongoose.connect(process.env.MONGO_DB_URI).then(() => {
         console.log('MongoDB connected successfully');
     }).catch(err => {
         console.error('MongoDB connection error:', err.message);
-        // Retry connection after 5 seconds
         setTimeout(connectWithRetry, 5000);
     });
 };

@@ -22,7 +22,7 @@ exports.createItem = async (req, res) => {
 
 exports.getAllItems = async (req, res) => {
     try {
-        const items = await Item.find().limit(10).setOptions({ maxTimeMS: 5000 }); // 5-second query timeout
+        const items = await Item.find({}).limit(10).setOptions({ maxTimeMS: 5000 }); // 5-second query timeout
         res.json(items);
     } catch (error) {
         res.status(500).json({ error: error.message });
