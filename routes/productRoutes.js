@@ -1,6 +1,7 @@
 const express = require("express");
-const upload = require('../middleware/upload')
-const {getController,singledataController,createController,updateController,deleteController} = require('../controllers/productController')
+const {getController, createController, updateController, deleteController, singledataController} = require('../controllers/productController');
+const upload = require("../middleware/upload");
+
 const BookRouter = express.Router();
 
 // ---------------------------------------------
