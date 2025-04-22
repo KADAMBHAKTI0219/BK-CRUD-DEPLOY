@@ -18,7 +18,8 @@ const itemSchema = new mongoose.Schema({
         required: true
     },
     image: {
-        type: String
+        type: String,
+        default:'https://images.theconversation.com/files/45159/original/rptgtpxd-1396254731.jpg?ixlib=rb-4.1.0&q=30&auto=format&w=600&h=400&fit=crop&dpr=2'
     }
 });
 
