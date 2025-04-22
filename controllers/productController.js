@@ -1,113 +1,125 @@
-const multer = require("multer");
-const { upload } = require("../middleware/upload");
-const { ProductDataModel } = require("../models/Product");
+const bookModel = require("../models/Product");
 
-const createProductData = async (req, res) => {
-    upload.single('image')(req, res, async (err) => {
-        const { title, price, description, category } = req.body;
-        if (!title || !price || !description || !category) {
-            return res.status(400).json({ message: 'Please fill all required fields' });
-        }
 
-        try {
-            const imagePath = req.file ? `/uploads/${req.file.filename}` : undefined;
-            const productData = await ProductDataModel.create({
-                title,
-                price,
- description,
-                category,
-                image: imagePath
-            });
-            return res.status(201).json({ message: 'Product created successfully', data: productData });
-        } catch (error) {
-            if (req.file) {
-                fs.unlinkSync(path.join(uploadDir, req.file.filename));
-            }
-            console.error('Database error:', error);
-            return res.status(500).json({ message: `Failed to create product: ${error.message}` });
-        }
-    });
-};
-// Get all products
-const getProductData = async (req, res) => {
-    try {
-    const data = await ProductDataModel.find().lean();
-      console.log('Retrieved products:', data.length);
-      return res.status(200).json({ message: 'Products retrieved successfully', data });
-    } catch (error) {
-      console.error('Database error:', error);
-      return res.status(500).json({ message: `Failed to retrieve products: ${error.message}` });
+const getController = async (req, res) => 
+{
+    // console.log("hello getController");
+
+    try 
+    {
+        const books = await bookModel.find();
+        res.status(200).json(books);
     }
-  };
-
-  const updateProductData = async (req, res) => {
-    upload.single('image')(req, res, async (err) => { // Use multer middleware for single file
-        if (err instanceof multer.MulterError) {
-            return res.status(400).json({ message: `Multer error: ${err.message}` });
-        } else if (err) {
-            return res.status(400).json({ message: err.message });
-        }
-
-        const { title, price, description, category } = req.body;
-        const id = req.params.id;
-
-        if (!title || !price || !description || !category) {
-            return res.status(400).json({ message: "Please fill all required fields" });
-        }
-
-        try {
-            const updateData = { title, price, description, category };
-            if (req.file) {
-                updateData.image = `/uploads/${req.file.filename}`;
-            }
-            const updated = await ProductDataModel.findByIdAndUpdate(id, updateData, { new: true });
-            if (!updated) {
-                if (req.file) {
-                    fs.unlinkSync(path.join(uploadDir, req.file.filename));
-                }
-                return res.status(404).json({ message: "Product not found" });
-            }
-            return res.status(200).json({ message: "Product data updated successfully", data: updated });
-        } catch (error) {
-            if (req.file) {
-                fs.unlinkSync(path.join(uploadDir, req.file.filename));
-            }
-            console.error("Database error:", error);
-            return res.status(500).json({ message: `Failed to update product: ${error.message}` });
-        }
-    })
-};
-
-const deleteProductData = async (req, res) => {
-    const id = req.params.id;
-    try {
-        const product = await ProductDataModel.findByIdAndDelete(id);
-        if (!product) {
-            return res.status(404).json({ message: 'Product not found' });
-        }
-        if (product.image) {
-            fs.unlinkSync(path.join(__dirname, '..', product.image));
-        }
-        return res.status(200).json({ message: 'Product deleted successfully' });
-    } catch (error) {
-        console.error('Database error:', error);
-        return res.status(500).json({ message: `Failed to delete product: ${error.message}` });
+    catch (error) 
+    {
+        res.status(400).json({ message: "Books Not Found !" });
     }
+
 };
 
-// Get single product
-const getSingleData = async (req, res) => {
-    const id = req.params.id;
-    try {
-        const product = await ProductDataModel.findById(id);
-        if (!product) {
-            return res.status(404).json({ message: 'Product not found' });
-        }
-        return res.status(200).json({ message: 'Product retrieved successfully', data: product });
-    } catch (error) {
-        console.error('Database error:', error);
-        return res.status(500).json({ message: `Failed to retrieve product: ${error.message}` });
+const singledataController = async (req, res) => 
+{
+    // console.log("hello singledataController");
+
+    const { id } = req.params
+    try 
+    {
+        const data = await bookModel.findById(id)
+        return res.status(200).json(data);
     }
+    catch (error) 
+    {
+        return res.status(400).json({ message: "Error in fetching books data" });
+    }
+
 };
 
-module.exports = { createProductData, getProductData, updateProductData, deleteProductData, getSingleData };
+const createController = async (req, res) => 
+{
+    // console.log("hello createController");
+
+    try 
+    {
+        const { ISBN } = req.body;
+        const existingBook = await bookModel.findOne({ ISBN });
+
+        if (existingBook) 
+        {
+            return res.status(400).json({ message: "Book with this ISBN already exists!" });
+        }
+        const book = new bookModel(req.body);
+        await book.save();
+        res.status(200).json({ message: "Book Added Successfully!" });
+    }
+    catch (error) 
+    {
+        console.error("Error adding book:", error);
+        res.status(400).json({ message: "Not Added!" });
+    }
+
+};
+
+const updateController = async (req, res) => 
+{
+    // console.log("hello updateController");
+
+    const { id } = req.params;
+    try 
+    {
+        let updateData = {...req.body};
+
+        if(req.file)
+        {
+            updateData.filePath = req.file.path;
+        }
+
+        const updatedBook = await bookModel.findByIdAndUpdate(id, {$set: updateData }, {new:true})
+        if (!updatedBook) 
+        {
+            return res.status(400).json({ message: "Not Updated!" });
+        }
+        else 
+        {
+            res.status(200).json({ message: "Book Updated Successfully !" })
+        }
+    }
+    catch (error) 
+    {
+        console.log(error)
+        res.status(400).json({ message: "Error updating book" });
+    }
+
+};
+
+const deleteController = async (req, res) => 
+{
+    // console.log("hello deleteController");
+
+    const { id } = req.params;
+    try 
+    {
+        const deletedBook = await bookModel.findByIdAndDelete(id);
+        if (!deletedBook) 
+        {
+            return res.status(400).json({ message: "Book not deleted !" })
+        }
+        else 
+        {
+            res.status(200).json({ message: "Book deleted Successfully !" })
+        }
+    }
+    catch (error) 
+    {
+        console.log(error);
+        res.status(400).json({ message: "Error to delete book" });
+    }
+
+
+
+};
+
+module.exports = { getController, singledataController, createController, updateController, deleteController };
+
+// for multer:-
+// Check if req.file exists (indicating a file was uploaded).
+// Add the file's path (req.file.path) to the updateData object, which is used to update the database.

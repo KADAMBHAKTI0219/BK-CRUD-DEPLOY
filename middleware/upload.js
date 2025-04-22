@@ -1,21 +1,17 @@
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
-const uploadDir = path.join(__dirname, '../uploads');
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
-}
+const multer = require("multer");
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, uploadDir);
+        cb(null, './upload')
     },
     filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+        cb(null, Date.now()+"-"+file.originalname);
     }
-});
+})
 
-const upload = multer({ storage: storage });
+const upload = multer ({storage});
 
-module.exports = { upload };
+module.exports=upload
+
+// storage defines where the files will be saved (./upload) and assigns them unique filenames.
+// upload.single("file") ensures a single file is uploaded under the file field.

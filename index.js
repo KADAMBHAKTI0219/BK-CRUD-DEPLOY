@@ -1,23 +1,31 @@
-const express = require('express');
-const cors = require('cors');
-const dotenv= require('dotenv');
-const path = require('path');
-const ProductRouter = require('./routes/productRoutes');
-const connectionToDB = require('./config/db')
-dotenv.config()
+const express = require("express")
+const mongoose = require("mongoose")
 const app = express()
-app.use(express.json());
-app.use(cors())
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-app.use('/products',ProductRouter)
+const cors = require("cors");
+const BookRouter = require("./routes/productRoutes");
+require("dotenv").config();
 
+app.use(cors());
+app.use(express.json())
+app.use("/books", BookRouter)
 
-
-app.listen(process.env.PORT || 3000,async()=>{
-    try {
-        await connectionToDB
-        console.log(`Server is running on Port ${process.env.PORT || 3000}`);
-    } catch (error) {
-        console.log(error)
+const connectToDb = async () => 
+{
+    try 
+    {
+        await mongoose.connect(process.env.MONGO_DB_URI);
+        console.log("connected to db");
     }
-})
+    catch (error) 
+    {
+        console.log(error);
+    }
+}
+
+connectToDb();
+
+const PORT = 8080
+app.listen(PORT, () => 
+{
+    console.log("Server running on PORT");
+});

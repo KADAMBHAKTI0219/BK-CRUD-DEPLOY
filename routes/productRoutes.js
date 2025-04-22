@@ -1,13 +1,25 @@
-const express = require('express');
-const { createProductData, getProductData, updateProductData, deleteProductData, getSingleData } = require('../controllers/productController');
+const express = require("express");
+const upload = require('../middleware/upload')
+const {getController,singledataController,createController,updateController,deleteController} = require('../controllers/productController')
+const BookRouter = express.Router();
 
-const ProductRouter = express.Router();
+// ---------------------------------------------
+BookRouter.get("/get", getController);
+
+// ---------------------------------------------
+BookRouter.get("/singledata/:id",singledataController)
+
+// ---------------------------------------------
+BookRouter.post("/create", createController);
+
+// ---------------------------------------------
+BookRouter.patch("/update/:id",upload.single("file") ,updateController);
+
+// ---------------------------------------------
+BookRouter.delete("/delete/:id", deleteController);
+
+// ---------------------------------------------
+module.exports = BookRouter;
 
 
-ProductRouter.post('/create', createProductData);
-ProductRouter.get('/get', getProductData);
-ProductRouter.put('/update/:id', updateProductData);
-ProductRouter.delete('/delete/:id', deleteProductData);
-ProductRouter.get('/get/:id', getSingleData);
-
-module.exports = ProductRouter;
+// The upload.single("file") middleware is added before the updateController to handle file processing.
